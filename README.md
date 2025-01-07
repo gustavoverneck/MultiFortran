@@ -3,7 +3,7 @@ Um script em Python para rodar um template de fortran em paralelo utilizando mú
 
 ## Tutorial de utilização do programa
 
-###  Criação do script em F90
+###  Criação do template em Fortran:
     
     O primeiro passo para a utilização do código é a criação de um arquivo
     template em F90 que receba o parâmetro via linha de comando, do seguinte modo:
