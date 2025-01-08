@@ -7,21 +7,40 @@ from multiprocessing import Pool
 DEFINIÇÃO DOS VALORES DE ENTRADA
 """
 
-csi_inicial = 0.1
-csi_final = 0.2
-n_csi = 100
-d_csi = abs((csi_final - csi_inicial) / n_csi)
+# numero = j * 10^e
+e0 = 0      # Exponente inicial
+e1 = 15     # Exponente final
+j0 = 1      # Escalar inicial
+j1 = 9      # Escalar final
+
+parametros = []
+for j in range(j0, j1, 1):
+    for e in range(e0, e1, 1):
+        parametros.append(f"{j}.0d{e}")
+parametros = np.array(parametros)
+
 
 num_processos = int(8)       # Escolher de acordo com o número de núcleos do processador e a capacidade de memória
 nome_executavel = "template.o"  # Nome do executável gerado pelo compilador
 nome_template = "template.f"    # Nome do arquivo de template
+input_dir = "input"             # Nome da pasta de entrada
+
+
+# ------------------------------------------------------------------------------------------------------------------
+# Cria arquivo para armazenar os parâmetros
+if not os.path.exists("output/params.txt"):
+        with open("output/params.txt", "w") as f:
+            f.write("Parametros:\n")
+else:
+    with open("output/params.txt", "w") as f:
+        f.write("Parametros:\n")
 
 # ------------------------------------------------------------------------------------------------------------------
 def getstr(param):
     """
     Função que converte um número em string, com 4 casas decimais.
     """
-    return "{:.3f}".format(param)
+    return "{:.20f}".format(param)
 # ------------------------------------------------------------------------------------------------------------------
 def setup():
     """
@@ -43,11 +62,18 @@ def create_folder(param):
         os.makedirs("output/" + (param))
 
 # ------------------------------------------------------------------------------------------------------------------
-def compile(param):
+def compile_template(param):
     """
     Função que compila o programa Fortran.
     """
     os.system("gfortran -w " + f"output/{param}/template.f -o " + f"output/{param}/{param}"+".o")
+
+# ------------------------------------------------------------------------------------------------------------------
+def compile_tov(param):
+    """
+    Função que compila o programa Fortran.
+    """
+    os.system("gfortran -w " + f"output/{param}/tov.f -o " + f"output/{param}/tov.o")
 
 # ------------------------------------------------------------------------------------------------------------------
 def move_ex(param):
@@ -55,8 +81,28 @@ def move_ex(param):
     Função que copia o executável para a pasta específica.
     """
     global nome_executavel, nome_template
-    os.system(f"cp {nome_template} output/{param}/{nome_template}")
-    compile(param)
+    os.system(f"cp {input_dir}/{nome_template} output/{param}/{nome_template}")
+    os.system(f"cp {input_dir}/tov.f output/{param}/tov.f")
+    compile_template(param)
+    compile_tov(param)
+
+# ------------------------------------------------------------------------------------------------------------------
+def fixEndOfFile(param):
+    """
+    Função que corrige o final do arquivo de saída.
+    """    
+    # Adiciona "-1. -1. -1, -1" ao fim de cada eos.dat dentro da pasta output/params
+    eos_file_path = f"output/{param}/eos.dat"
+    if os.path.exists(eos_file_path):
+        with open(eos_file_path, "a") as eos_file:
+            eos_file.write("\n-1. -1. -1 -1\n")
+# ------------------------------------------------------------------------------------------------------------------
+def exportParams(param):
+    """
+    Função que exporta os parâmetros para o arquivo de entrada.
+    """
+    with open(f"output/params.txt", "a") as f:
+        f.write(f"{param}\n")
 
 # ------------------------------------------------------------------------------------------------------------------
 def execute(param):
@@ -64,22 +110,22 @@ def execute(param):
     Função que executa o programa Fortran com um parâmetro específico.
     """
     print(f"Executando com parâmetro {param}")
-    create_folder(getstr(param))
-    move_ex(getstr(param))
-    executable = f"./{getstr(param)}.o"
-    result = subprocess.run([executable, getstr(param)], capture_output=False, text=True, cwd=f"output/{getstr(param)}")
-    return result.stdout
+    exportParams(param)
+    create_folder(param)
+    move_ex(param)
+    executable = f"./{param}.o"
+    # Executa o programa com o parâmetro específico
+    subprocess.run([executable, param], capture_output=False, text=True, cwd=f"output/{param}")
+    fixEndOfFile(param)
+    # Executa tov
+    subprocess.run(["./tov.o"], capture_output=False, text=True, cwd=f"output/{param}")
 
+    pass
 # ------------------------------------------------------------------------------------------------------------------
 def main():
-    global num_processos, current_process
+    global num_processos, current_process, parametros
     
     setup()
-
-    # Lista de parâmetros que você quer testar
-    parametros = np.arange(csi_inicial, csi_final, d_csi) # (valor_inicial, valor_final, passo)
-
-    # Define o número de processos paralelos (pode ser o número de núcleos da CPU, por exemplo)
 
     # Usa multiprocessing.Pool para paralelizar
     with Pool(num_processos) as pool:
