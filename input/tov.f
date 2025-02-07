@@ -96,8 +96,8 @@ c	INPUT FROM TOV.INP
        e0sup = maxval(e)
        !write(*,*) "Insira o número de pontos (recomendado 100~1000): "
        !READ(*,*) npoints
-       npoints = 500
-       !npoints = 1000
+       !npoints = 500
+       npoints = 800
        pmin=p(1)
        If(pmin.le.0.d0)Then
                      Write(6,*)'Fatal!, negative or zero pmin will fail
@@ -178,7 +178,7 @@ c     write maximum mass and maximum radius
              Write(4,*)' ----------------'
       End If
 c     format statement, close output files and end
-10    Format(4(e13.6,2x))
+10    format(11(1x,e25.15))
       Close(3)
       Close(4)
       End
@@ -227,9 +227,9 @@ c----------------------------------------------------------------------
       Common/Cf/e,p,rho,e2,p2,b2,ndat
       flag=0
       If(ex.lt.e(1).or.ex.gt.e(ndat))Then
-            Write(6,*)'Fatal: attemp to use a central energy out of
-     ^the bounds of tov.inp!'
-            Write(6,*)'E0=',ex,'Emin=',e(1),'Emax=',e(ndat)
+c            Write(6,*)'Fatal: attemp to use a central energy out of
+c     ^the bounds of tov.inp!'
+c            Write(6,*)'E0=',ex,'Emin=',e(1),'Emax=',e(ndat)
             flag=1
       Else
             Call splint(e,rho,b2,ndat,ex,fb)
@@ -250,9 +250,9 @@ c----------------------------------------------------------------------
 
       flag=0
       If(ex.lt.e(1).or.ex.gt.e(ndat))Then
-            Write(6,*)'Fatal: attemp to use a central energy out of
-     ^the bounds of tov.inp!'
-            Write(6,*)'E0=',ex,'Emin=',e(1),'Emax=',e(ndat)
+c            Write(6,*)'Fatal: attemp to use a central energy out of
+c     ^the bounds of tov.inp!'
+c            Write(6,*)'E0=',ex,'Emin=',e(1),'Emax=',e(ndat)
             flag=1
       Else
             Call splint(e,p,p2,ndat,ex,fp)

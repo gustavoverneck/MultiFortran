@@ -28,8 +28,6 @@
       ! Converte o argumento de string para real
       read(csi_string, *, iostat=iostat) csi
 
-c      DATA csi/CSI_KEY/ 
-
 c ==============================
 c-----------------------------------------------------------------
 c      1=neutron,2=proton
@@ -117,7 +115,7 @@ c      b=b_star*b_ce			!campo em termos DO campo admensional
               ! magentic field
 c     campo magnetico em gauss (bg)
       be=ml(1)**2          
-      bg= 1.0d15 			!1.d19, 2.d19 
+      bg= 1.0d17 			!1.d19, 2.d19 
 c      bg= 1.0d19
       b0=bg/4.41d13             	!Campo no interior da estrela
       b=b0*bce
@@ -145,10 +143,9 @@ c      npoint=1501		!number of points
       dmub=(munsup-muninf)/(npoint-1)	!variacao do potencial quimici mu barions
 
 c     opening output files
-      !open(unit=2,file='frac-la1.dat')
-      !open(unit=3,file='effe-la1.dat')
+      open(unit=2,file='frac-la1.dat')
+      open(unit=3,file='effe-la1.dat')
       open(unit=4,file='eos.dat')
-
 c     initializing variables
 
       x(1)=0.8d0                   	! electronic chemical potential 
@@ -221,7 +218,9 @@ c      write(14,*) nbtd, ne,nu,npu,nsm,nsp,nxm
       press = press/197.326d0  + ebsd		      ! press_T = press + B^2/(2*4*pi)
       nbtd = nbtd*0.153d0
 
-      write(4,10) nbtd/denss, ener, press
+      if (ener .GE. 0.0d0 .and. press .GE. 0.0d0) then
+            write(4,10) nbtd/denss, ener, press
+      endif
 c      write(88,*) nbtd/denss, ener, press,embay
 c      write(87,*) nbtd/denss, ener*197.32d0, press*197.32d0
 c      write(19,*) nbtd/denss, 1 - (ebsd)/press00  !bo quantity
@@ -841,7 +840,7 @@ c      press = press*1.0084d0 ! nomalization factor
       c4 = mup-(mun-mue)
       c5=  musm-(mun+mue)
 
-      !write(77,*) (c1-c2), c3,c4,c5, mux0-mun
+      write(77,*) (c1-c2), c3,c4,c5, mux0-mun
 
 c      write(*,*) 'aaa1', mun, re3n, re3p, re3le, re3lmu
 c      write(*,*) 'aaa2',enerf,enerbar,enerlep
@@ -900,7 +899,7 @@ cu    uses fdjac,fmin,lnsrch,qrdcmp,qrupdt,rsolv
         if(restrt)then
           call fdjac(n,x,fvec,np,r)
           call qrdcmp(r,n,np,c,d,sing)
-          if(sing) stop! 'singular jacobian in broydn'
+          if(sing) stop
           do 14 i=1,n
             do 13 j=1,n
               qt(i,j)=0.d0
@@ -968,7 +967,7 @@ cu    uses fdjac,fmin,lnsrch,qrdcmp,qrupdt,rsolv
 31          continue
             call qrupdt(r,qt,n,np,t,s)
             do 32 i=1,n
-              if(r(i,i).eq.0.d0) pause 'r singular in broydn'
+              if(r(i,i).eq.0.d0) stop
               d(i)=r(i,i)
 32          continue
           endif

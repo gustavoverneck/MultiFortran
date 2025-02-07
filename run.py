@@ -7,6 +7,9 @@ from multiprocessing import Pool
 DEFINIÇÃO DOS VALORES DE ENTRADA
 """
 
+usar_csi_negativo = True
+adicionar_zero = True
+
 # numero = j * 10^e
 e0 = 0      # Exponente inicial
 e1 = 15     # Exponente final
@@ -14,9 +17,17 @@ j0 = 1      # Escalar inicial
 j1 = 9      # Escalar final
 
 parametros = []
-for j in range(j0, j1, 1):
-    for e in range(e0, e1, 1):
-        parametros.append(f"{j}.0d{e}")
+if adicionar_zero:
+    parametros.append("0.0d0")
+
+if not usar_csi_negativo:
+    for j in range(j0, j1, 1):
+        for e in range(e0, e1, 1):
+            parametros.append(f"{j}.0d{e}")
+elif usar_csi_negativo:
+    for j in range(j0, j1, 1):
+        for e in range(e0, e1, 1):
+            parametros.append(f"{j}.0d-{e}")
 parametros = np.array(parametros)
 
 
@@ -95,7 +106,7 @@ def fixEndOfFile(param):
     eos_file_path = f"output/{param}/eos.dat"
     if os.path.exists(eos_file_path):
         with open(eos_file_path, "a") as eos_file:
-            eos_file.write("\n-1. -1. -1 -1\n")
+            eos_file.write("-1., -1., -1.")
 # ------------------------------------------------------------------------------------------------------------------
 def exportParams(param):
     """
@@ -116,11 +127,54 @@ def execute(param):
     executable = f"./{param}.o"
     # Executa o programa com o parâmetro específico
     subprocess.run([executable, param], capture_output=False, text=True, cwd=f"output/{param}")
-    fixEndOfFile(param)
+    sort_eos(param)
+    #fixEndOfFile(param)
     # Executa tov
     subprocess.run(["./tov.o"], capture_output=False, text=True, cwd=f"output/{param}")
 
     pass
+
+# ------------------------------------------------------------------------------------------------------------------
+def sort_eos(param):
+    """
+    Função que ordena o arquivo eos.dat.
+    """
+    nB_arr = []
+    ener_arr = []
+    pres_arr = []
+    new_nB_arr = []
+    new_ener_arr = []
+    new_pres_arr = []
+
+    with open(f"output/{param}/eos.dat", "r") as f1:
+        data = f1.readlines()
+        for linha in data:
+            x = linha.split()
+            nB_arr.append(float(x[0]))
+            ener_arr.append(float(x[1]))
+            pres_arr.append(float(x[2]))
+
+    index = np.argsort(ener_arr)
+
+    for i in index:
+        new_nB_arr.append(nB_arr[i])
+        new_ener_arr.append(ener_arr[i])
+        new_pres_arr.append(pres_arr[i])
+
+    with open(f"output/{param}/eos.dat", "w") as f:
+        for i in range(len(new_ener_arr)):
+            f.write("{}\t{}\t{}\n".format(new_nB_arr[i], new_ener_arr[i], new_pres_arr[i]))
+        f.write("-1.,\t-1.,\t-1.")
+
+# ------------------------------------------------------------------------------------------------------------------
+def run_plot():
+    """
+    Função que executa o script de plotagem.
+    """
+    print("Plotando...")
+    os.system("python plot.py")
+    print("Plotagem finalizada. Resultados em output/")
+
 # ------------------------------------------------------------------------------------------------------------------
 def main():
     global num_processos, current_process, parametros
