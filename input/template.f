@@ -18,16 +18,23 @@
      &,mxms,efxm,muxm,fxm,nxm
       COMMON/lvs/csi
       
-      character(len=32) :: csi_string    ! Variável de caractere para capturar o argumento
-      real :: csi                         ! Variável real para armazenar o argumento convertido
-      integer :: iostat                      ! Variável para verificar se a leitura foi bem sucedida
-      
+      character(len=32) :: csi_string    ! Variável para capturar o argumento
+      integer :: iostat                  ! Variável para verificar se a leitura foi bem-sucedida
+
       ! Obtém o argumento da linha de comando
       call get_command_argument(1, csi_string)
 
-      ! Converte o argumento de string para real
+      ! Converte o argumento de string para double precision
       read(csi_string, *, iostat=iostat) csi
 
+      if (iostat /= 0) then
+         print *, "Erro ao converter o argumento para número real."
+         stop
+      endif
+
+!      print *, "Valor de csi:", csi
+
+c      write(*,*) 'csi = ', csi
 c ==============================
 c-----------------------------------------------------------------
 c      1=neutron,2=proton
@@ -115,7 +122,7 @@ c      b=b_star*b_ce			!campo em termos DO campo admensional
               ! magentic field
 c     campo magnetico em gauss (bg)
       be=ml(1)**2          
-      bg= 1.0d17 			!1.d19, 2.d19 
+      bg= 1.0d18 			!1.d19, 2.d19 
 c      bg= 1.0d19
       b0=bg/4.41d13             	!Campo no interior da estrela
       b=b0*bce
@@ -268,8 +275,6 @@ c     in the vector fvec
      &,msms,efsm,musm,fsm,nsm,rkfs0,efs0,ms0s,mus0
      &,msps,efsp,musp,fsp,nsp,rkfx0,efx0,mx0s,mux0
      &,mxms,efxm,muxm,fxm,nxm
-
-      double precision csi
       COMMON/lvs/csi
 
       call mapping(x,mue,vsigma,vomega,vrho)
@@ -702,9 +707,7 @@ c     this subroutine calculates the eos of this stellar matter
      &,msms,efsm,musm,fsm,nsm,rkfs0,efs0,ms0s,mus0
      &,msps,efsp,musp,fsp,nsp,rkfx0,efx0,mx0s,mux0
      &,mxms,efxm,muxm,fxm,nxm
-
-      double precision csi
-      COMMON/lvs/csi
+     common/lvs/csi
 c  ============================================
 c    Termos de dens de energia
 
@@ -1138,7 +1141,7 @@ cu    uses func
               tmplam=-slope/(2.d0*b)
             else
               disc=b*b-3.d0*a*slope
-              if(disc.lt.0.d0) pause 'roundoff problem in lnsrch'
+              if(disc.lt.0.d0) stop 'roundoff problem in lnsrch'
               tmplam=(-b+dsqrt(disc))/(3.d0*a)
             endif
             if(tmplam.gt..5d0*alam)tmplam=.5d0*alam

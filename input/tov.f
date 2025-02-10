@@ -59,9 +59,9 @@ c     variables declaration
       Data y(2),y(3),nvar,r1,r2,eps,h1,hmin/0.d0,0.d0,3,0.d0,1.d30,
      ^                                 3.d-16,1.d-4,0.d0/
 
-      write(*,*) ""
-      Write(*,*) "Calculando eq's de Tolman-Oppenheimer-Volkoff..."
-      Write(*,*) " "
+c      write(*,*) ""
+c      Write(*,*) "Calculando eq's de Tolman-Oppenheimer-Volkoff..."
+c      Write(*,*) " "
 
 c     data input
 c      Open(Unit=1,File='tov.inp')
@@ -339,7 +339,7 @@ c----------------------------------------------------------------------
       goto 1
       endif
       h=xa(khi)-xa(klo)
-      if (h.eq.0.d0) pause 'bad xa input in splint'
+      if (h.eq.0.d0) stop ! 'bad xa input in splint'
       a=(xa(khi)-x)/h
       b=(x-xa(klo))/h
       y=a*ya(klo)+b*ya(khi)+((a**3-a)*y2a(klo)+(b**3-b)*y2a(khi))*(h**
@@ -411,7 +411,7 @@ c----------------------------------------------------------------------
      *'stepsize smaller than minimum in odeint'
         h=hnext
 16    continue
-      pause 'too many steps in odeint'
+      stop ! 'too many steps in odeint'
       return
       END
 c----------------------------------------------------------------------
@@ -437,7 +437,7 @@ CU    USES derivs,rkck
         htemp=SAFETY*h*(errmax**PSHRNK)
         h=sign(max(abs(htemp),0.1d0*abs(h)),h)
         xnew=x+h
-        if(xnew.eq.x)pause 'stepsize underflow in rkqs'
+        if(xnew.eq.x)stop
         goto 1
       else
         if(errmax.gt.ERRCON)then
