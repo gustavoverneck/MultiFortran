@@ -17,7 +17,7 @@ data = []
 min_b = 15
 max_b = 17
 min_csi = 10E-15
-max_csi = 10E-6
+max_csi = 10E-7
 
 """
 Data format
@@ -71,7 +71,6 @@ def plot_max_M_log_csi(data):
     plt.clf()
     # Filter data based on B and csi intervals.
     filtered_data = [d for d in data if min_b <= int(d["B"]) <= max_b and min_csi <= float(d["csi"]) <= max_csi]
-
     # Create a mapping of each unique B to a unique explicit color using only filtered data
     unique_B = sorted(list(set([d["B"] for d in filtered_data])))
     explicit_colors = ['red', 'lime', 'blue', 'violet']

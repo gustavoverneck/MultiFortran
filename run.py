@@ -11,7 +11,7 @@ usar_csi_negativo = True
 adicionar_zero = True
 
 # numero = j * 10^e
-e0 = 5      # Exponente inicial
+e0 = 7      # Exponente inicial
 e1 = 15     # Exponente final
 j0 = 1      # Escalar inicial
 j1 = 2      # Escalar final
