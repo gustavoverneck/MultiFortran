@@ -75,6 +75,36 @@ plt.savefig(f"{output_dir}/log_eos.jpg", dpi=600)
 plt.clf()
 
 # ------------------------------------------------------------------------------------------------------------------
+# Plotting e x log(p) Data
+plt.figure(figsize=(10, 6))
+for index, param in enumerate(params_complete):
+    e = [x[0] for x in eos_data[index]]
+    p = [x[1] for x in eos_data[index]]
+    plt.plot(e, np.log(p), label=f"{param}")
+
+plt.xlabel("e")
+plt.ylabel("log p")
+plt.title("e x log p")
+plt.legend()
+plt.savefig(f"{output_dir}/e_log_p.jpg", dpi=600)
+plt.clf()
+
+# ------------------------------------------------------------------------------------------------------------------
+# Plotting log(e) x p Data
+plt.figure(figsize=(10, 6))
+for index, param in enumerate(params_complete):
+    e = [x[0] for x in eos_data[index]]
+    p = [x[1] for x in eos_data[index]]
+    plt.plot(np.log(e), p, label=f"{param}")
+
+plt.xlabel("log e")
+plt.ylabel("p")
+plt.title("log e x p")
+plt.legend()
+plt.savefig(f"{output_dir}/log_e_p.jpg", dpi=600)
+plt.clf()
+
+# ------------------------------------------------------------------------------------------------------------------
 # Plotting TOV Data
 plt.figure(figsize=(10, 6))
 for index, param in enumerate(params_complete):
@@ -129,8 +159,9 @@ plt.legend()
 ax = plt.gca()
 ax.minorticks_on()
 import matplotlib.ticker as ticker
+ax.xaxis.set_major_locator(ticker.MultipleLocator(1))  # x-axis ticks separated by 1 unit
 ax.yaxis.set_major_formatter(ticker.FormatStrFormatter('%.6f'))
-plt.grid(which='both', linestyle='--', linewidth=0.5, alpha=0.7)
+plt.grid(which='both', linestyle='--', linewidth=0.3, alpha=0.7)
 
 plt.savefig(f"{output_dir}/max_M_log_csi.jpg", dpi=600)
 plt.clf()
@@ -147,11 +178,51 @@ plt.legend()
 ax = plt.gca()
 ax.minorticks_on()
 import matplotlib.ticker as ticker
+ax.xaxis.set_major_locator(ticker.MultipleLocator(1))  # x-axis ticks separated by 1 unit
+ax.xaxis.set_minor_locator(ticker.AutoMinorLocator(5))
 ax.yaxis.set_major_formatter(ticker.FormatStrFormatter('%.6f'))
-plt.grid(which='both', linestyle='--', linewidth=0.5, alpha=0.7)
+plt.grid(which='both', linestyle='--', linewidth=0.3, alpha=0.7)
 
 plt.savefig(f"{output_dir}/max_R_log_csi.jpg", dpi=600)
 plt.clf()
+
+# -----------------------------------------------------------------------------------------------------
+# import plotly.graph_objects as go
+
+# fig = go.Figure()
+
+# fig.add_trace(go.Scatter(
+#     x=log_csi,
+#     y=max_r,
+#     mode='markers',
+#     marker=dict(size=4),
+#     name='Max(M) vs log(csi)'
+# ))
+
+# fig.update_layout(
+#     title=dict(text="Gráfico de Max(r) x log(csi)", font=dict(size=14)),
+#     xaxis=dict(
+#         title=dict(text="log(csi)", font=dict(size=12)),
+#         tickmode='linear',
+#         dtick=1,
+#         showgrid=True,
+#         gridwidth=0.3,
+#         gridcolor='rgba(0,0,0,0.3)'
+#     ),
+#     yaxis=dict(
+#         title=dict(text="Max(r)", font=dict(size=12)),
+#         range=[min(max_r) - 1E-2, max(max_r) + 1E-2],
+#         showgrid=True,
+#         gridwidth=0.3,
+#         gridcolor='rgba(0,0,0,0.3)',
+#         tickformat='.6f'
+#     ),
+#     legend=dict(x=0.01, y=0.99)
+# )
+
+# # Save the figure with high resolution: 600dpi and 10x6 inches = 6000x3600 pixels.
+# fig.write_image(f"{output_dir}/max_R_log_csi.jpg", width=6000, height=3600)
+
 
 
 # output data in file

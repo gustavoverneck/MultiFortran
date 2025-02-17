@@ -11,12 +11,12 @@ usar_csi_negativo = True
 adicionar_zero = True
 
 # numero = j * 10^e
-e0 = 9      # Exponente inicial
-e1 = 20     # Exponente final
+e0 = 5      # Exponente inicial
+e1 = 15     # Exponente final
 j0 = 1      # Escalar inicial
 j1 = 2      # Escalar final
 
-parametros = []
+parametros = [] 
 if adicionar_zero:
     parametros.append("0.0d0")
 
@@ -184,7 +184,7 @@ def main():
     # Usa multiprocessing.Pool para paralelizar
     with Pool(num_processos) as pool:
         pool.map(execute, parametros)
-    run_plot()
+    #run_plot()
     print("Execução finalizada.")
 
 # ------------------------------------------------------------------------------------------------------------------
