@@ -31,13 +31,17 @@ elif usar_csi_negativo:
 parametros = np.array(parametros)
 
 
-num_processos = int(8)       # Escolher de acordo com o número de núcleos do processador e a capacidade de memória
+num_processos = int(4)       # Escolher de acordo com o número de núcleos do processador e a capacidade de memória
 nome_executavel = "template.o"  # Nome do executável gerado pelo compilador
 nome_template = "template.f"    # Nome do arquivo de template
 input_dir = "input"             # Nome da pasta de entrada
 
 
 # ------------------------------------------------------------------------------------------------------------------
+# Cria o diretorio de saida
+if not os.path.exists("output"):
+    os.makedirs("output")
+
 # Cria arquivo para armazenar os parâmetros
 if not os.path.exists("output/params.txt"):
         with open("output/params.txt", "w") as f:
@@ -171,7 +175,7 @@ def run_plot():
     """
     Função que executa o script de plotagem.
     """
-    print("Plotando...")
+    #print("Plotando...")
     os.system("python plot.py")
     print("Plotagem finalizada. Resultados em output/")
 
@@ -183,8 +187,9 @@ def main():
 
     # Usa multiprocessing.Pool para paralelizar
     with Pool(num_processos) as pool:
-        pool.map(execute, parametros)
-    #run_plot()
+        for _ in pool.imap_unordered(execute, parametros):
+            pass 
+    run_plot()
     print("Execução finalizada.")
 
 # ------------------------------------------------------------------------------------------------------------------
